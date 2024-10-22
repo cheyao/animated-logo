@@ -92,10 +92,9 @@ public class SplashOverlayMixin {
                     0, 0, 450, 50, 512, 512);
         }
 
-	// Uncomment to loop
+	// Uncomment to loop animation
         if (/* progress <= 0.8 || */ count != FRAMES * IMAGE_PER_FRAME * FRAMES_PER_FRAME - 1) {
             count++;
-
 	    /*
             if (count >= FRAMES * IMAGE_PER_FRAME * FRAMES_PER_FRAME) {
                 count = 0;
