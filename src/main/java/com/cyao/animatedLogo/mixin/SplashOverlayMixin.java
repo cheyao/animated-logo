@@ -114,6 +114,7 @@ public class SplashOverlayMixin {
                                         new ByteArrayInputStream(finalS.readAllBytes()));
                                 clip.open(inputStream);
                                 clip.addLineListener(new DoneLineListen(playing));
+                                startTime = System.currentTimeMillis();
                                 clip.start();
                             } catch (Exception e) {
                             }
