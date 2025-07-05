@@ -122,7 +122,7 @@ public class SplashOverlayMixin {
                             } catch (Exception e) {
                             }
                         }
-                    }).start();
+                    }, "SoundPlayer").start();
                 }
             }
 
