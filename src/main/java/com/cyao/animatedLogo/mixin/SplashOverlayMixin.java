@@ -1,20 +1,31 @@
 package com.cyao.animatedLogo.mixin;
 
-import com.llamalad7.mixinextras.sugar.*;
-import net.minecraft.client.*;
-import net.minecraft.client.gl.*;
-import net.minecraft.client.gui.*;
-import net.minecraft.client.gui.screen.*;
-import net.minecraft.resource.*;
-import net.minecraft.sound.*;
-import net.minecraft.util.*;
-import net.minecraft.util.math.*;
-import org.spongepowered.asm.mixin.*;
-import org.spongepowered.asm.mixin.injection.*;
-import org.spongepowered.asm.mixin.injection.callback.*;
+import com.llamalad7.mixinextras.sugar.Local;
+import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.gl.RenderPipelines;
+import net.minecraft.client.gui.DrawContext;
+import net.minecraft.client.gui.screen.SplashOverlay;
+import net.minecraft.resource.ResourceManager;
+import net.minecraft.resource.ResourceReload;
+import net.minecraft.sound.SoundCategory;
+import net.minecraft.util.Identifier;
+import net.minecraft.util.math.ColorHelper;
+import net.minecraft.util.math.MathHelper;
+import org.spongepowered.asm.mixin.Final;
+import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.asm.mixin.Unique;
+import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.ModifyArg;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-import javax.sound.sampled.*;
-import java.io.*;
+import javax.sound.sampled.AudioInputStream;
+import javax.sound.sampled.AudioSystem;
+import javax.sound.sampled.Clip;
+import javax.sound.sampled.FloatControl;
+import java.io.BufferedInputStream;
+import java.io.InputStream;
 
 @Mixin(SplashOverlay.class)
 public class SplashOverlayMixin {
