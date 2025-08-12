@@ -1,6 +1,7 @@
 package com.cyao.animatedLogo.mixin;
 
 import com.llamalad7.mixinextras.sugar.Local;
+import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.SplashOverlay;
@@ -26,6 +27,9 @@ import javax.sound.sampled.Clip;
 import javax.sound.sampled.FloatControl;
 import java.io.BufferedInputStream;
 import java.io.InputStream;
+import java.util.function.IntSupplier;
+
+import static net.minecraft.util.math.ColorHelper.Abgr.withAlpha;
 
 @Mixin(SplashOverlay.class)
 public class SplashOverlayMixin {
@@ -64,18 +68,24 @@ public class SplashOverlayMixin {
     private boolean animDone = false;
     @Unique
     private long startTime;
+    @Unique
+    private static final int MOJANG_RED = ColorHelper.Argb.getArgb(255, 239, 50, 61);
+    @Unique
+    private static final int MONOCHROME_BLACK = ColorHelper.Argb.getArgb(255, 0, 0, 0);
+    @Unique
+    private static final IntSupplier BRAND_ARGB = () -> (Boolean) MinecraftClient.getInstance().options.getMonochromeLogo().getValue() ? MONOCHROME_BLACK : MOJANG_RED;
 
     @ModifyArg(method = "render",
-            at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/DrawContext;drawTexture(Ljava/util/function/Function;Lnet/minecraft/util/Identifier;IIFFIIIIIII)V", ordinal = 0),
-            index = 7
+            at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/DrawContext;drawTexture(Lnet/minecraft/util/Identifier;IIIIFFIIII)V", ordinal = 0),
+            index = 3
     )
     private int removeText1(int i) {
         return 0;
     }
 
     @ModifyArg(method = "render",
-            at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/DrawContext;drawTexture(Ljava/util/function/Function;Lnet/minecraft/util/Identifier;IIFFIIIIIII)V", ordinal = 1),
-            index = 7
+            at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/DrawContext;drawTexture(Lnet/minecraft/util/Identifier;IIIIFFIIII)V", ordinal = 1),
+            index = 3
     )
     private int removeText2(int u) {
         return 0;
@@ -95,7 +105,7 @@ public class SplashOverlayMixin {
      * @param halfWidth w
      */
     @Inject(method = "render",
-            at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/DrawContext;drawTexture(Ljava/util/function/Function;Lnet/minecraft/util/Identifier;IIFFIIIIIII)V", ordinal = 1, shift = At.Shift.AFTER)
+            at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/DrawContext;drawTexture(Lnet/minecraft/util/Identifier;IIIIFFIIII)V", ordinal = 1, shift = At.Shift.AFTER)
     )
     private void onAfterRenderLogo(DrawContext context, int mouseX, int mouseY, float delta, CallbackInfo ci,
                                    @Local(ordinal = 2) int scaledWidth, @Local(ordinal = 3) int scaledHeight, @Local(ordinal = 3) float alpha, @Local(ordinal = 4) int x, @Local(ordinal = 5) int y, @Local(ordinal = 0) double height, @Local(ordinal = 6) int halfHeight, @Local(ordinal = 1) double width, @Local(ordinal = 7) int halfWidth) {
@@ -139,18 +149,30 @@ public class SplashOverlayMixin {
 
         float progress = MathHelper.clamp(this.progress * 0.95F + this.reload.getProgress() * 0.050000012F, 0.0F, 1.0F);
         
+        RenderSystem.disableBlend();
+        RenderSystem.defaultBlendFunc();
+        int i = context.getScaledWindowWidth();
+        int j = context.getScaledWindowHeight();
+        context.fill(RenderLayer.getGuiOverlay(), 0, 0, i, j, withAlpha((int) f, BRAND_ARGB.getAsInt()));
+
+        RenderSystem.enableBlend();
+        RenderSystem.blendFunc(770, 1);
+
+        context.setShaderColor(1.0F, 1.0F, 1.0F, f);
         context.drawTexture(
-                RenderLayer::getGuiTextured, this.frames[count / IMAGE_PER_FRAME / FRAMES_PER_FRAME], x - halfWidth, y - halfHeight,
-                0, 256 * ((count % (IMAGE_PER_FRAME * FRAMES_PER_FRAME)) / FRAMES_PER_FRAME), (int) width, (int) height, 1024, 256, 1024, 1024, ColorHelper.getWhite(alpha)
+                this.frames[count / IMAGE_PER_FRAME / FRAMES_PER_FRAME], x - halfWidth, y - halfHeight, (int) width, (int)height,
+                0, 256 * ((count % (IMAGE_PER_FRAME * FRAMES_PER_FRAME)) / FRAMES_PER_FRAME), 1024, 256, 1024, 1024
         );
+
 
         if (progress >= 0.8) {
             f = Math.min(alpha, f + 0.2f);
 
             int sw = (int) (width * 0.45);
+            context.setShaderColor(1.0F, 1.0F, 1.0F, f);
             context.drawTexture(
-                    RenderLayer::getGuiTextured, Identifier.of("animated-logo", "textures/gui/studios.png"), x - sw / 2, (int) (y - halfHeight + height - height / 12),
-                    0, 0, sw, (int) (height / 5.0), 450, 50, 512, 512, ColorHelper.getWhite(f)
+                    Identifier.of("animated-logo", "textures/gui/studios.png"), x - sw / 2, (int) (y - halfHeight + height - height/12),
+                    0, 0, sw, (int) (height / 5.0), 450, 50, 512, 512
             );
         }
 
