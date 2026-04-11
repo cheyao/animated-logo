@@ -1,31 +1,33 @@
 {
   "schemaVersion": 1,
-  "id": "animated-logo",
-  "version": "2.0",
-  "name": "Animated Mojang Logo",
-  "authors": [
-    "Cyao (cheyao)"
-  ],
+  "id": "${id}",
+  "name": "${name}",
+  "version": "${version}",
+  "authors": ["${authors}"],
+  "contributors": ["${contributors}"],
   "contact": {
-    "homepage": "https://github.com/cheyao/animated-logo",
-    "sources": "https://github.com/cheyao/animated-logo"
+    "sources": "${sources_url}",
+    "issues": "${issues_url}",
+    "homepage": "${homepage_url}"
   },
-  "license": "ZLIB",
-  "icon": "assets/animated-logo/icon.png",
- "environment": "*",
+  "custom": {
+    "modmenu": {
+      "links": {
+        "modmenu.discord": "${discord_url}"
+      }
+    }
+  },
+  "description": "${description}",
+  "icon": "assets/icon.png",
+  "license": "${license}",
+  "environment": "*",
+  "accessWidener": "aw/${minecraft}.accesswidener",
   "entrypoints": {
     "main": [
-      "com.cyao.animatedLogo.AnimatedLogo"
+      "${group}.${id}.platform.fabric.FabricEntrypoint"
     ]
   },
   "mixins": [
-    "animated-logo.mixins.json"
-  ],
-  "depends": {
-    "fabricloader": ">=0.16.5",
-    "minecraft": ">=1.26",
-    "java": ">=25",
-    "fabric-api": "*"
-  },
-  "accessWidener" : "animated-logo.accesswidener"
+    "${id}.mixins.json"
+  ],${dependencies}
 }

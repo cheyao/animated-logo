@@ -1,9 +1,9 @@
-package com.cyao.animatedLogo.mixin;
+package com.cyao.animatedlogo.mixin;
 
+import com.cyao.animatedlogo.AnimatedLogo;
 import com.llamalad7.mixinextras.sugar.Local;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
-import net.minecraft.client.gui.screens.LoadingOverlay;
 import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.resources.Identifier;
 import net.minecraft.server.packs.resources.ReloadInstance;
@@ -27,18 +27,32 @@ import net.minecraft.sounds.SoundSource;
 import java.io.BufferedInputStream;
 import java.io.InputStream;
 
-@Mixin(LoadingOverlay.class)
-public class SplashOverlayMixin {
+//? fabric {
+import net.minecraft.client.gui.screens.LoadingOverlay;
+//? }
 
+//? neoforge {
+import net.neoforged.neoforge.client.loading.NeoForgeLoadingOverlay;
+//? }
+
+//? fabric
+//@Mixin(LoadingOverlay.class)
+//? neoforge
+@Mixin(NeoForgeLoadingOverlay.class)
+public class SplashOverlayMixin {
     @Shadow
     @Final
     private ReloadInstance reload;
     @Shadow
-    private long fadeOutStart;
-    @Shadow
-    private long fadeInStart = -1L;
-    @Shadow
     private float currentProgress;
+
+	//? fabric {
+	/*@Shadow
+	private long fadeOutStart;
+	@Shadow
+	private long fadeInStart = -1L;
+	*///? }
+
     @Unique
     private int count = 0;
     @Unique
@@ -78,43 +92,28 @@ public class SplashOverlayMixin {
         return 0;
     }
 
-    /**
-     * Draws the logo shadows
-     * Original names for future reference:
-     * @param scaledWidth i
-     * @param scaledHeight j
-     * @param alpha s
-     * @param x t
-     * @param y u
-     * @param height d
-     * @param halfHeight v
-     * @param width e
-     * @param halfWidth w
-     */
     @Inject(method = "extractRenderState(Lnet/minecraft/client/gui/GuiGraphicsExtractor;IIF)V",
             at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/GuiGraphicsExtractor;blit(Lcom/mojang/blaze3d/pipeline/RenderPipeline;Lnet/minecraft/resources/Identifier;IIFFIIIIIII)V", ordinal = 1, shift = At.Shift.AFTER)
     )
     private void onAfterRenderLogo(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float a, CallbackInfo ci,
-                                   @Local(name = "width") int scaledWidth,
-                                   @Local(name = "height") int scaledHeight,
-                                   @Local(name = "logoAlpha") float alpha,
-                                   @Local(name = "contentX") int x,
-                                   @Local(name = "contentWidth") double width,
-                                   @Local(name = "logoY") int y,
-                                   @Local(name = "logoHeight") double height,
-                                   @Local(name = "logoHeightHalf") int halfHeight,
-                                   @Local(name = "logoWidthHalf") int halfWidth) {
+                                   @Local(name = "logoAlpha") float logoAlpha,
+                                   @Local(name = "contentX") int contentX,
+                                   @Local(name = "contentWidth") double contentWidth,
+                                   @Local(name = "logoY") int logoY,
+                                   @Local(name = "logoHeight") double logoHeight,
+                                   @Local(name = "logoHeightHalf") int logoHeightHalf,
+                                   @Local(name = "logoWidthHalf") int logoWidthHalf) {
         if (!inited) {
             this.frames = new Identifier[FRAMES];
 
             for (int i = 0; i < FRAMES; i++) {
-                this.frames[i] = Identifier.fromNamespaceAndPath("animated-logo", "textures/gui/frame_" + i + ".png");
+                this.frames[i] = Identifier.fromNamespaceAndPath(AnimatedLogo.MOD_ID, "textures/gui/frame_" + i + ".png");
             }
 
             if (!reload.isDone()) {
                 final Minecraft client = Minecraft.getInstance();
                 final ResourceManager resourceManager = client.getResourceManager();
-                final Identifier soundId = Identifier.fromNamespaceAndPath("animated-logo", "logo.wav");
+                final Identifier soundId = Identifier.fromNamespaceAndPath(AnimatedLogo.MOD_ID, "logo.wav");
 
                 resourceManager.getResource(soundId).ifPresent(resource -> new Thread(() -> {
                     try (final InputStream inputStream = resource.open(); final BufferedInputStream bufferedInputStream = new BufferedInputStream(inputStream); final AudioInputStream audioInputStream = AudioSystem.getAudioInputStream(bufferedInputStream)) {
@@ -146,17 +145,17 @@ public class SplashOverlayMixin {
         float progress = Mth.clamp(this.currentProgress * 0.95F + actualProgress * 0.050000012F, 0.0F, 1.0F);
 
         graphics.blit(
-                RenderPipelines.MOJANG_LOGO, this.frames[count / IMAGE_PER_FRAME / FRAMES_PER_FRAME], x - halfWidth, y - halfHeight,
-                0, 256 * ((count % (IMAGE_PER_FRAME * FRAMES_PER_FRAME)) / FRAMES_PER_FRAME), (int) width, (int) height, 1024, 256, 1024, 1024, ARGB.white(alpha)
+                RenderPipelines.MOJANG_LOGO, this.frames[count / IMAGE_PER_FRAME / FRAMES_PER_FRAME], contentX - logoWidthHalf, logoY - logoHeightHalf,
+                0, 256 * ((count % (IMAGE_PER_FRAME * FRAMES_PER_FRAME)) / FRAMES_PER_FRAME), (int) contentWidth, (int) logoHeight, 1024, 256, 1024, 1024, ARGB.white(logoAlpha)
         );
 
         if (progress >= 0.8) {
-            f = Math.min(alpha, f + 0.2f);
+            f = Math.min(logoAlpha, f + 0.2f);
 
-            int sw = (int) (width * 0.45);
+            int sw = (int) (contentWidth * 0.45);
             graphics.blit(
-                    RenderPipelines.MOJANG_LOGO, Identifier.fromNamespaceAndPath("animated-logo", "textures/gui/studios.png"), x - sw / 2, (int) (y - halfHeight + height - height / 12),
-                    0, 0, sw, (int) (height / 5.0), 450, 50, 512, 512, ARGB.white(f)
+                    RenderPipelines.MOJANG_LOGO, Identifier.fromNamespaceAndPath(AnimatedLogo.MOD_ID, "textures/gui/studios.png"), contentX - sw / 2, (int) (logoY - logoHeightHalf + logoHeight - logoHeight / 12),
+                    0, 0, sw, (int) (logoHeight / 5.0), 450, 50, 512, 512, ARGB.white(f)
             );
         }
 
