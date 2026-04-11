@@ -26,10 +26,7 @@ import javax.sound.sampled.FloatControl;
 import net.minecraft.sounds.SoundSource;
 import java.io.BufferedInputStream;
 import java.io.InputStream;
-
-//? fabric {
-import net.minecraft.client.gui.screens.LoadingOverlay;
-//? }
+import java.util.function.IntSupplier;
 
 //? neoforge {
 import net.neoforged.neoforge.client.loading.NeoForgeLoadingOverlay;
@@ -50,7 +47,9 @@ public class SplashOverlayMixin {
 	/*@Shadow
 	private long fadeOutStart;
 	@Shadow
-	private long fadeInStart = -1L;
+	private long fadeInStart;
+	@Shadow
+	private boolean fadeIn;
 	*///? }
 
     @Unique
@@ -84,25 +83,62 @@ public class SplashOverlayMixin {
         return 0;
     }
 
-    @ModifyArg(method = "extractRenderState(Lnet/minecraft/client/gui/GuiGraphicsExtractor;IIF)V",
+	//? fabric {
+    /*@ModifyArg(method = "extractRenderState(Lnet/minecraft/client/gui/GuiGraphicsExtractor;IIF)V",
             at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/GuiGraphicsExtractor;blit(Lcom/mojang/blaze3d/pipeline/RenderPipeline;Lnet/minecraft/resources/Identifier;IIFFIIIIIII)V", ordinal = 1),
             index = 6
     )
     private int removeText2(int u) {
         return 0;
     }
+    *///? }
+
+	@Unique
+	private static int animated_logo$replaceAlpha(int color, int alpha) {
+		return color & 16777215 | alpha << 24;
+	}
 
     @Inject(method = "extractRenderState(Lnet/minecraft/client/gui/GuiGraphicsExtractor;IIF)V",
-            at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/GuiGraphicsExtractor;blit(Lcom/mojang/blaze3d/pipeline/RenderPipeline;Lnet/minecraft/resources/Identifier;IIFFIIIIIII)V", ordinal = 1, shift = At.Shift.AFTER)
+            at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/GuiGraphicsExtractor;blit(Lcom/mojang/blaze3d/pipeline/RenderPipeline;Lnet/minecraft/resources/Identifier;IIFFIIIIIII)V", ordinal = 0, shift = At.Shift.AFTER)
     )
-    private void onAfterRenderLogo(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float a, CallbackInfo ci,
-                                   @Local(name = "logoAlpha") float logoAlpha,
-                                   @Local(name = "contentX") int contentX,
-                                   @Local(name = "contentWidth") double contentWidth,
-                                   @Local(name = "logoY") int logoY,
-                                   @Local(name = "logoHeight") double logoHeight,
-                                   @Local(name = "logoHeightHalf") int logoHeightHalf,
-                                   @Local(name = "logoWidthHalf") int logoWidthHalf) {
+    private void onAfterRenderLogo(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float a, CallbackInfo ci/*? neoforge { */, @Local(name = "fade") float logoAlpha/*? } */) {
+		int width = graphics.guiWidth();
+		int height = graphics.guiHeight();
+		int contentX = (int) (width * 0.5F);
+		int logoY = (int) (height * 0.5F);
+		double logoHeight = Math.min(width * 0.75F, height) * 0.25F;
+		int logoHeightHalf = (int) (logoHeight * 0.5F);
+		double logoWidth = logoHeight * (double)4.0F;
+		int logoWidthHalf = (int)(logoWidth * (double)0.5F);
+
+		//? fabric {
+		/*long now = Util.getMillis();
+		if (this.fadeIn && this.fadeInStart == -1L) {
+			this.fadeInStart = now;
+		}
+
+		float logoAlpha;
+		float fadeOutAnim = this.fadeOutStart > -1L ? (float)(now - this.fadeOutStart) / 1000.0F : -1.0F;
+		float fadeInAnim = this.fadeInStart > -1L ? (float)(now - this.fadeInStart) / 500.0F : -1.0F;
+		if (fadeOutAnim >= 1.0F) {
+			logoAlpha = 1.0F - Mth.clamp(fadeOutAnim - 1.0F, 0.0F, 1.0F);
+		} else if (this.fadeIn) {
+			logoAlpha = Mth.clamp(fadeInAnim, 0.0F, 1.0F);
+		} else {
+			logoAlpha = 1.0F;
+		}
+		*///? }
+
+		//? neoforge {
+		int LOGO_BACKGROUND_COLOR = ARGB.color(255, 239, 50, 61);
+		int LOGO_BACKGROUND_COLOR_DARK = ARGB.color(255, 0, 0, 0);
+		IntSupplier BRAND_BACKGROUND = () -> (Boolean)Minecraft.getInstance().options.darkMojangStudiosBackground().get() ? LOGO_BACKGROUND_COLOR_DARK : LOGO_BACKGROUND_COLOR;
+
+		int alpha = Mth.ceil(logoAlpha * 255.0F);
+		graphics.nextStratum();
+		graphics.fill(0, 0, width, height, animated_logo$replaceAlpha(BRAND_BACKGROUND.getAsInt(), alpha));
+		//? }
+
         if (!inited) {
             this.frames = new Identifier[FRAMES];
 
@@ -146,13 +182,13 @@ public class SplashOverlayMixin {
 
         graphics.blit(
                 RenderPipelines.MOJANG_LOGO, this.frames[count / IMAGE_PER_FRAME / FRAMES_PER_FRAME], contentX - logoWidthHalf, logoY - logoHeightHalf,
-                0, 256 * ((count % (IMAGE_PER_FRAME * FRAMES_PER_FRAME)) / FRAMES_PER_FRAME), (int) contentWidth, (int) logoHeight, 1024, 256, 1024, 1024, ARGB.white(logoAlpha)
+                0, 256 * ((count % (IMAGE_PER_FRAME * FRAMES_PER_FRAME)) / FRAMES_PER_FRAME), (int) logoWidth, (int) logoHeight, 1024, 256, 1024, 1024, ARGB.white(logoAlpha)
         );
 
         if (progress >= 0.8) {
             f = Math.min(logoAlpha, f + 0.2f);
 
-            int sw = (int) (contentWidth * 0.45);
+            int sw = (int) (logoWidth * 0.45);
             graphics.blit(
                     RenderPipelines.MOJANG_LOGO, Identifier.fromNamespaceAndPath(AnimatedLogo.MOD_ID, "textures/gui/studios.png"), contentX - sw / 2, (int) (logoY - logoHeightHalf + logoHeight - logoHeight / 12),
                     0, 0, sw, (int) (logoHeight / 5.0), 450, 50, 512, 512, ARGB.white(f)
@@ -186,8 +222,11 @@ public class SplashOverlayMixin {
 
             if (done && !animDone) {
                 this.currentProgress = 0.9f;
-                this.fadeOutStart = -1L;
+
+				//? fabric {
+                /*this.fadeOutStart = -1L;
                 this.fadeInStart = -1L;
+				*///? }
             }
         }
     }
