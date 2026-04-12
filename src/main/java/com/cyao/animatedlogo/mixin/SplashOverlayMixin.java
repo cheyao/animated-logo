@@ -39,7 +39,7 @@ import java.util.function.IntSupplier;
 
 //? 1.21 || 1.21.2 {
 /*//? 1.21
-// import net.minecraft.util.FastColor.ARGB;
+ //import net.minecraft.util.FastColor.ARGB;
 //? 1.21.2
 //import net.minecraft.util.ARGB;
 
@@ -66,12 +66,11 @@ public class SplashOverlayMixin {
     @Shadow
     private float currentProgress;
 
-	//? < 26.1
-	 //@Shadow private long fadeOutStart;
-
 	//? fabric {
 	@Shadow
 	private long fadeInStart;
+	@Shadow
+	private long fadeOutStart;
 	@Shadow
 	private boolean fadeIn;
 	//? }
@@ -82,6 +81,8 @@ public class SplashOverlayMixin {
 	private ProgressMeter progressMeter;
 	//? < 26.1
 	//@Final @Shadow private Consumer<Optional<Throwable>> onFinish;
+	//? < 26.1
+	//@Shadow private long fadeOutStart;
 	@Final
 	@Shadow
 	private DisplayWindow displayWindow;
@@ -215,10 +216,12 @@ public class SplashOverlayMixin {
 		IntSupplier BRAND_BACKGROUND = () -> (Boolean)Minecraft.getInstance().options.darkMojangStudiosBackground().get() ? LOGO_BACKGROUND_COLOR_DARK : LOGO_BACKGROUND_COLOR;
 
 		int alpha = Mth.ceil(logoAlpha * 255.0F);
-		//? >= 1.21.6
+		//? >= 1.21.5
 		graphics.nextStratum();
-		//? >= 1.21.2
-		graphics.fill(RenderType.guiOverlay(), 0, 0, width, height, animated_logo$replaceAlpha(BRAND_BACKGROUND.getAsInt(), alpha));
+		//? >= 1.21.5
+		graphics.fill(RenderPipelines.MOJANG_LOGO, 0, 0, width, height, animated_logo$replaceAlpha(BRAND_BACKGROUND.getAsInt(), alpha));
+		//? 1.21.2
+		//graphics.fill(RenderType.guiOverlay(), 0, 0, width, height, animated_logo$replaceAlpha(BRAND_BACKGROUND.getAsInt(), alpha));
 		//? 1.21
 		//graphics.fill(RenderType.guiOverlay(), 0, 0, width, height, animated_logo$replaceAlpha(BRAND_BACKGROUND.getAsInt(), alpha));
 		*///? }
