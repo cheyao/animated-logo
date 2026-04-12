@@ -1,19 +1,13 @@
 package com.cyao.animatedlogo.mixin;
 
 import com.cyao.animatedlogo.AnimatedLogo;
-import com.llamalad7.mixinextras.sugar.Local;
-import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.LoadingOverlay;
 import net.minecraft.client.gui.screens.Overlay;
-import net.minecraft.client.renderer.RenderType;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.packs.resources.ReloadInstance;
 import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.util.Mth;
-import net.neoforged.fml.earlydisplay.DisplayWindow;
-import net.neoforged.fml.loading.progress.ProgressMeter;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -23,12 +17,6 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.ModifyArg;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-//? >= 1.21.2 {
-/*import net.minecraft.client.gui.GuiGraphicsExtractor;
-import net.minecraft.client.renderer.RenderPipelines;
-import net.minecraft.util.ARGB32;
-*///? }
-
 import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.Clip;
@@ -36,21 +24,36 @@ import javax.sound.sampled.FloatControl;
 import net.minecraft.sounds.SoundSource;
 import java.io.BufferedInputStream;
 import java.io.InputStream;
+
+//? neoforge {
+/*import net.neoforged.neoforge.client.loading.NeoForgeLoadingOverlay;
+import net.neoforged.fml.earlydisplay.DisplayWindow;
+import net.neoforged.fml.loading.progress.ProgressMeter;
+
+import com.llamalad7.mixinextras.sugar.Local;
 import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.function.IntSupplier;
+*///? }
 
-//? neoforge {
-import net.neoforged.neoforge.client.loading.NeoForgeLoadingOverlay;
+//? 1.21 {
+/*import net.minecraft.util.FastColor.ARGB;
+import net.minecraft.Util;
+import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.renderer.RenderType;
+*///? }
+
+//? >= 1.21.2 {
+import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.client.renderer.RenderPipelines;
+import net.minecraft.util.ARGB;
+import net.minecraft.util.Util;
 //? }
 
-//? 1.21
-import net.minecraft.util.FastColor.ARGB32;
-
 //? fabric
-//@Mixin(LoadingOverlay.class)
+@Mixin(LoadingOverlay.class)
 //? neoforge
-@Mixin(NeoForgeLoadingOverlay.class)
+//@Mixin(NeoForgeLoadingOverlay.class)
 public class SplashOverlayMixin {
     @Shadow
     @Final
@@ -61,14 +64,14 @@ public class SplashOverlayMixin {
 	private long fadeOutStart;
 
 	//? fabric {
-	/*@Shadow
+	@Shadow
 	private long fadeInStart;
 	@Shadow
 	private boolean fadeIn;
-	*///? }
+	//? }
 
 	//? neoforge {
-	@Final
+	/*@Final
 	@Shadow
 	private ProgressMeter progressMeter;
 	@Final
@@ -77,12 +80,12 @@ public class SplashOverlayMixin {
 	@Final
 	@Shadow
 	private DisplayWindow displayWindow;
-	//? }
+	*///? }
 
     @Unique
     private int count = 0;
     @Unique
-    private ResourceLocation[] frames;
+    private Identifier[] frames;
     @Unique
     private boolean inited = false;
     @Unique
@@ -103,44 +106,44 @@ public class SplashOverlayMixin {
     private long startTime;
 
 	//? fabric || (neoforge && >=1.21.2) {
-	/*@ModifyArg(
+	@ModifyArg(
 			//? >= 26.1
-			//method = "extractRenderState(Lnet/minecraft/client/gui/GuiGraphicsExtractor;IIF)V",
+			method = "extractRenderState(Lnet/minecraft/client/gui/GuiGraphicsExtractor;IIF)V",
 			//? 1.21
-			method = "render(Lnet/minecraft/client/gui/GuiGraphics;IIF)V",
+			//method = "render(Lnet/minecraft/client/gui/GuiGraphics;IIF)V",
 			//? >= 26.1
-            //at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/GuiGraphicsExtractor;blit(Lcom/mojang/blaze3d/pipeline/RenderPipeline;Lnet/minecraft/resources/ResourceLocation;IIFFIIIIIII)V", ordinal = 0),
+            at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/GuiGraphicsExtractor;blit(Lcom/mojang/blaze3d/pipeline/RenderPipeline;Lnet/minecraft/resources/Identifier;IIFFIIIIIII)V", ordinal = 0),
 			//? 1.21
-			at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/GuiGraphics;blit(Lnet/minecraft/resources/ResourceLocation;IIIIFFIIII)V", ordinal = 0),
+			//at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/GuiGraphics;blit(Lnet/minecraft/resources/Identifier;IIIIFFIIII)V", ordinal = 0),
 			//? >= 1.21.2
-			//index = 6
+			index = 6
 			//? 1.21
-            index = 3
+            //index = 3
     )
     private int removeText1(int i) {
         return 0;
     }
-	*///? }
+	//? }
 
 	//? fabric {
-    /*@ModifyArg(
+    @ModifyArg(
 			//? >= 26.1
-			//method = "extractRenderState(Lnet/minecraft/client/gui/GuiGraphicsExtractor;IIF)V",
+			method = "extractRenderState(Lnet/minecraft/client/gui/GuiGraphicsExtractor;IIF)V",
 			//? 1.21
-			method = "render(Lnet/minecraft/client/gui/GuiGraphics;IIF)V",
+			//method = "render(Lnet/minecraft/client/gui/GuiGraphics;IIF)V",
 			//? >= 26.1
-			//at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/GuiGraphicsExtractor;blit(Lcom/mojang/blaze3d/pipeline/RenderPipeline;Lnet/minecraft/resources/ResourceLocation;IIFFIIIIIII)V", ordinal = 1),
+			at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/GuiGraphicsExtractor;blit(Lcom/mojang/blaze3d/pipeline/RenderPipeline;Lnet/minecraft/resources/Identifier;IIFFIIIIIII)V", ordinal = 1),
 			//? 1.21
-			at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/GuiGraphics;blit(Lnet/minecraft/resources/ResourceLocation;IIIIFFIIII)V", ordinal = 1),
+			//at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/GuiGraphics;blit(Lnet/minecraft/resources/Identifier;IIIIFFIIII)V", ordinal = 1),
 			//? >= 1.21.2
-			//index = 6
+			index = 6
 			//? 1.21
-			index = 3
+			//index = 3
     )
     private int removeText2(int u) {
         return 0;
     }
-    *///? }
+    //? }
 
 	@Unique
 	private static int animated_logo$replaceAlpha(int color, int alpha) {
@@ -149,24 +152,23 @@ public class SplashOverlayMixin {
 
     @Inject(
 			//? >= 26.1
-			//method = "extractRenderState(Lnet/minecraft/client/gui/GuiGraphicsExtractor;IIF)V",
+			method = "extractRenderState(Lnet/minecraft/client/gui/GuiGraphicsExtractor;IIF)V",
 			//? 1.21
-			method = "render(Lnet/minecraft/client/gui/GuiGraphics;IIF)V",
+			//method = "render(Lnet/minecraft/client/gui/GuiGraphics;IIF)V",
 			//? 1.21 && neoforge
-			cancellable = true,
+			//cancellable = true,
 			//? >= 26.1
-			//at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/GuiGraphicsExtractor;blit(Lcom/mojang/blaze3d/pipeline/RenderPipeline;Lnet/minecraft/resources/ResourceLocation;IIFFIIIIIII)V", ordinal = 0),
+			at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/GuiGraphicsExtractor;blit(Lcom/mojang/blaze3d/pipeline/RenderPipeline;Lnet/minecraft/resources/Identifier;IIFFIIIIIII)V", ordinal = 0)
 			//? 1.21 && fabric
-			//at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/GuiGraphics;blit(Lnet/minecraft/resources/ResourceLocation;IIIIFFIIII)V", ordinal = 0, shift = At.Shift.AFTER)
+			//at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/GuiGraphics;blit(Lnet/minecraft/resources/Identifier;IIIIFFIIII)V", ordinal = 0, shift = At.Shift.AFTER)
 			//? 1.21 && neoforge
-			at = @At(value = "INVOKE", target = "Lcom/mojang/blaze3d/systems/RenderSystem;enableBlend()V", ordinal = 0)
+			//at = @At(value = "INVOKE", target = "Lcom/mojang/blaze3d/systems/RenderSystem;enableBlend()V", ordinal = 0)
     )
 	//? 26.1
-	//private void onAfterRenderLogo(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float a, CallbackInfo ci/*? neoforge { */, @Local(name = "fade") float logoAlpha/*? } */)
+	private void onAfterRenderLogo(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float a, CallbackInfo ci/*? neoforge { *//*, @Local(name = "fade") float logoAlpha*//*? } */)
 	//? 1.21
-    private void onAfterRenderLogo(GuiGraphics graphics, int mouseX, int mouseY, float a, CallbackInfo ci
-								   /*? neoforge { */, @Local(name = "fade") float logoAlpha/*? } */
-	) {
+    //private void onAfterRenderLogo(GuiGraphics graphics, int mouseX, int mouseY, float a, CallbackInfo ci/*? neoforge { *//*, @Local(name = "fade") float logoAlpha*//*? } */)
+	{
 		int width = graphics.guiWidth();
 		int height = graphics.guiHeight();
 		int contentX = (int) (width * 0.5F);
@@ -177,7 +179,7 @@ public class SplashOverlayMixin {
 		int logoWidthHalf = (int)(logoWidth * (double)0.5F);
 
 		//? fabric {
-		/*long now = Util.getMillis();
+		long now = Util.getMillis();
 		if (this.fadeIn && this.fadeInStart == -1L) {
 			this.fadeInStart = now;
 		}
@@ -192,34 +194,34 @@ public class SplashOverlayMixin {
 		} else {
 			logoAlpha = 1.0F;
 		}
-		*///? }
+		//? }
 
 		//? neoforge {
-		int LOGO_BACKGROUND_COLOR = ARGB32.color(255, 239, 50, 61);
-		int LOGO_BACKGROUND_COLOR_DARK = ARGB32.color(255, 0, 0, 0);
+		/*int LOGO_BACKGROUND_COLOR = ARGB.color(255, 239, 50, 61);
+		int LOGO_BACKGROUND_COLOR_DARK = ARGB.color(255, 0, 0, 0);
 		IntSupplier BRAND_BACKGROUND = () -> (Boolean)Minecraft.getInstance().options.darkMojangStudiosBackground().get() ? LOGO_BACKGROUND_COLOR_DARK : LOGO_BACKGROUND_COLOR;
 
 		int alpha = Mth.ceil(logoAlpha * 255.0F);
 		graphics.fill(RenderType.guiOverlay(), 0, 0, width, height, animated_logo$replaceAlpha(BRAND_BACKGROUND.getAsInt(), alpha));
 
 		//? >= 1.21.2 {
-		/*graphics.nextStratum();
+		graphics.nextStratum();
 		graphics.fill(0, 0, width, height, animated_logo$replaceAlpha(BRAND_BACKGROUND.getAsInt(), alpha));
-		*///? }
-
 		//? }
 
+		*///? }
+
         if (!inited) {
-            this.frames = new ResourceLocation[FRAMES];
+            this.frames = new Identifier[FRAMES];
 
             for (int i = 0; i < FRAMES; i++) {
-                this.frames[i] = ResourceLocation.fromNamespaceAndPath(AnimatedLogo.MOD_ID, "textures/gui/frame_" + i + ".png");
+                this.frames[i] = Identifier.fromNamespaceAndPath(AnimatedLogo.MOD_ID, "textures/gui/frame_" + i + ".png");
             }
 
             if (!reload.isDone()) {
                 final Minecraft client = Minecraft.getInstance();
                 final ResourceManager resourceManager = client.getResourceManager();
-                final ResourceLocation soundId = ResourceLocation.fromNamespaceAndPath(AnimatedLogo.MOD_ID, "logo.wav");
+                final Identifier soundId = Identifier.fromNamespaceAndPath(AnimatedLogo.MOD_ID, "logo.wav");
 
                 resourceManager.getResource(soundId).ifPresent(resource -> new Thread(() -> {
                     try (final InputStream inputStream = resource.open(); final BufferedInputStream bufferedInputStream = new BufferedInputStream(inputStream); final AudioInputStream audioInputStream = AudioSystem.getAudioInputStream(bufferedInputStream)) {
@@ -252,38 +254,38 @@ public class SplashOverlayMixin {
 
         graphics.blit(
 				//? >=1.21.2
-                //RenderPipelines.MOJANG_LOGO,
+                RenderPipelines.MOJANG_LOGO,
 				this.frames[count / IMAGE_PER_FRAME / FRAMES_PER_FRAME],
 				contentX - logoWidthHalf, logoY - logoHeightHalf,
 				//? 1.21
-				(int) logoWidth, (int) logoHeight,
+				//(int) logoWidth, (int) logoHeight,
                 0, 256 * ((count % (IMAGE_PER_FRAME * FRAMES_PER_FRAME)) / FRAMES_PER_FRAME),
 				//? >=1.21.2
-				//(int) logoWidth, (int) logoHeight,
+				(int) logoWidth, (int) logoHeight,
 				1024, 256,
 				1024, 1024
 				//? >=1.21.2
-				//, ARGB32.white(logoAlpha)
+				, ARGB.white(logoAlpha)
         );
 
         if (progress >= 0.8) {
 			//? >=1.21.2
-            //f = Math.min(logoAlpha, f + 0.2f);
+            f = Math.min(logoAlpha, f + 0.2f);
 
             int sw = (int) (logoWidth * 0.45);
             graphics.blit(
 					//? >=1.21.2
-					//RenderPipelines.MOJANG_LOGO,
-                    ResourceLocation.fromNamespaceAndPath(AnimatedLogo.MOD_ID, "textures/gui/studios.png"),
+					RenderPipelines.MOJANG_LOGO,
+                    Identifier.fromNamespaceAndPath(AnimatedLogo.MOD_ID, "textures/gui/studios.png"),
 					contentX - sw / 2, (int) (logoY - logoHeightHalf + logoHeight - logoHeight / 12),
 					//? 1.21
-					sw, (int) (logoHeight / 5.0),
+					//sw, (int) (logoHeight / 5.0),
                     0, 0,
 					//? >=1.21.2
-					//sw, (int) (logoHeight / 5.0),
+					sw, (int) (logoHeight / 5.0),
 					450, 50, 512, 512
 					//? >=1.21.2
-					//, ARGB32.white(f)
+					, ARGB.white(f)
             );
         }
 
@@ -316,14 +318,14 @@ public class SplashOverlayMixin {
                 this.currentProgress = 0.9f;
 
 				//? fabric {
-                /*this.fadeOutStart = -1L;
+                this.fadeOutStart = -1L;
                 this.fadeInStart = -1L;
-				*///? }
+				//? }
             }
         }
 
 		//? 1.21 && neoforge {
-		ci.cancel();
+		/*ci.cancel();
 
 		LoadingOverlayAccessor accessor = (LoadingOverlayAccessor) this;
 
@@ -349,6 +351,6 @@ public class SplashOverlayMixin {
 				Minecraft.getInstance().screen.init(Minecraft.getInstance(), Minecraft.getInstance().getWindow().getGuiScaledWidth(), Minecraft.getInstance().getWindow().getGuiScaledHeight());
 			}
 		}
-		//? }
+		*///? }
     }
 }

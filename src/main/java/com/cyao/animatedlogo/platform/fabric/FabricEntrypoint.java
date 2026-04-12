@@ -1,7 +1,7 @@
 package com.cyao.animatedlogo.platform.fabric;
 
 //? fabric {
-/*import com.cyao.animatedlogo.AnimatedLogo;
+import com.cyao.animatedlogo.AnimatedLogo;
 import dev.kikugie.fletching_table.annotation.fabric.Entrypoint;
 import net.fabricmc.api.ModInitializer;
 
@@ -13,4 +13,4 @@ public class FabricEntrypoint implements ModInitializer {
 		AnimatedLogo.onInitialize();
 	}
 }
-*///?}
+//?}
