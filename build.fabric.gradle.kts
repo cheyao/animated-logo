@@ -21,8 +21,6 @@ platform {
 }
 
 loom {
-	// accessWidenerPath = sc.process(rootProject.file("src/main/resources/template.ct"), "build/processed.ct")
-
 	runs.named("client") {
 		client()
 		ideConfigGenerated(true)

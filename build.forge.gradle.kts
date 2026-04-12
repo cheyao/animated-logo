@@ -18,12 +18,6 @@ platform {
 legacyForge {
 	version = "${property("deps.minecraft")}-${property("deps.forge")}"
 
-	validateAccessTransformers = true
-
-	accessTransformers.from(
-		rootProject.file("src/main/resources/aw/${stonecutter.current.version}.cfg")
-	)
-
 	runs {
 		register("client") {
 			client()
