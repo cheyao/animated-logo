@@ -51,5 +51,9 @@ stonecutter parameters {
 		string(current.parsed >= "26.1") {
 			replace("classTweaker v1 named", "classTweaker v1 official")
 		}
+
+		string(current.parsed >= "1.21.2") {
+			replace("ARGB32", "ARGB")
+		}
 	}
 }

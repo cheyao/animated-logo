@@ -7,7 +7,7 @@ platform {
 	loader = "fabric"
 	dependencies {
 		required("minecraft") {
-			versionRange = prop("deps.minecraft")
+			versionRange = ">=${prop("deps.minecraft")}"
 		}
 		required("fabric-api") {
 			slug("fabric-api")
