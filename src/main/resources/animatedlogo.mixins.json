@@ -2,6 +2,7 @@
   "package": "com.cyao.animatedlogo.mixin",
   "required": true,
   "minVersion": "0.8",
+  "refmap": "animatedlogo.mixins.refmap.json",
   "compatibilityLevel": "${java}",
   "injectors": {
     "defaultRequire": 1

@@ -7,9 +7,9 @@ platform {
 	loader = "fabric"
 	dependencies {
 		required("minecraft") {
-			versionRange = prop("deps.minecraft")
+			versionRange = ">=${prop("deps.minecraft")}"
 		}
-		required("fabric-api") {
+		required(if (hasProperty("deps.fabric-api-modid")) prop("deps.fabric-api-modid") else "fabric-api") {
 			slug("fabric-api")
 			versionRange = ">=${prop("deps.fabric-api")}"
 		}
@@ -51,7 +51,9 @@ dependencies {
 	implementation(libs.moulberry.mixinconstraints)
 	include(libs.moulberry.mixinconstraints)
 	modImplementation("net.fabricmc.fabric-api:fabric-api:${prop("deps.fabric-api")}")
-	modLocalRuntime("com.terraformersmc:modmenu:${prop("deps.modmenu")}")
+	modLocalRuntime("com.terraformersmc:modmenu:${prop("deps.modmenu")}") {
+		exclude(group = "net.fabricmc", module = "fabric-loader")
+	}
 }
 
 stonecutter {

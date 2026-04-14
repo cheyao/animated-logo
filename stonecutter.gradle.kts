@@ -51,5 +51,9 @@ stonecutter parameters {
 		string(current.parsed >= "1.21.2") {
 			replace("ARGB32", "ARGB")
 		}
+
+		string(current.parsed >= "1.21") {
+			replace("tryBuild", "fromNamespaceAndPath")
+		}
 	}
 }

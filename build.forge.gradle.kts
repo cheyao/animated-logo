@@ -7,7 +7,11 @@ platform {
 	loader = "forge"
 	dependencies {
 		required("minecraft") {
-			forgeVersionRange = "[${prop("deps.minecraft")}]"
+			forgeVersionRange = if (prop("deps.minecraft") == prop("deps.minecraft-max")) {
+				"[${prop("deps.minecraft")}]"
+			} else {
+				"[${prop("deps.minecraft")}, ${prop("deps.minecraft-max")}]"
+			}
 		}
 		required("forge") {
 			forgeVersionRange = "[1,)"
@@ -22,7 +26,7 @@ legacyForge {
 		register("client") {
 			client()
 			gameDirectory = file("run/")
-			ideName = "Forge Client (${stonecutter.active?.version})"
+			ideName = "Forge Client (${stonecutter.current.version})"
 			programArgument("--username=Dev")
 		}
 	}

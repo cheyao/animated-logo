@@ -2,14 +2,14 @@ package com.cyao.animatedlogo.platform.forge;
 
 //? forge {
 
-/*import com.example.modtemplate.ModTemplate;
+/*import com.cyao.animatedlogo.AnimatedLogo;
 import net.minecraftforge.fml.common.Mod;
 
-@Mod(ModTemplate.MOD_ID)
+@Mod(AnimatedLogo.MOD_ID)
 public class ForgeEntrypoint {
 
 	public ForgeEntrypoint() {
-		ModTemplate.onInitialize();
+		AnimatedLogo.onInitialize();
 	}
 }
 *///?}

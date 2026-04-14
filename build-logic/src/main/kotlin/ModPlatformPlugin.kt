@@ -5,6 +5,7 @@ import dev.kikugie.stonecutter.build.StonecutterBuildExtension
 import me.modmuss50.mpp.ModPublishExtension
 import me.modmuss50.mpp.ReleaseType
 import org.gradle.api.JavaVersion
+import org.gradle.jvm.toolchain.JavaLanguageVersion
 import org.gradle.api.NamedDomainObjectContainer
 import org.gradle.api.Plugin
 import org.gradle.api.Project
@@ -229,6 +230,9 @@ abstract class ModPlatformPlugin @Inject constructor() : Plugin<Project> {
 			withJavadocJar()
 			sourceCompatibility = requiredJava
 			targetCompatibility = requiredJava
+			toolchain {
+				languageVersion.set(JavaLanguageVersion.of(requiredJava.majorVersion))
+			}
 		}
 	}
 
