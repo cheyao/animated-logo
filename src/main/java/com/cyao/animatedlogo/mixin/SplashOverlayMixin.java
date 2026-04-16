@@ -298,7 +298,12 @@ public class SplashOverlayMixin {
                         clip.open(audioInputStream);
                         { // Calculate gain from Minecraft's master volume
                             final FloatControl gainControl = (FloatControl) clip.getControl(FloatControl.Type.MASTER_GAIN);
-                            final float masterVolume = Minecraft.getInstance().options.getSoundSourceVolume(SoundSource.MASTER);
+                            final float masterVolume = Minecraft.getInstance().options.getSoundSourceVolume(
+									//? >=26.1
+									SoundSource.UI
+									//? <=1.21.11
+									//SoundSource.MUSIC
+							);
                             gainControl.setValue(masterVolume > 0.0 ? Math.min(gainControl.getMaximum(), Math.max(gainControl.getMinimum(), (float) (Math.log10(masterVolume) * 20.0))) : gainControl.getMinimum());
                         }
                         this.startTime = System.currentTimeMillis();
