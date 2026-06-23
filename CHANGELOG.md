@@ -1,4 +1,1 @@
-- Removed red boarder on mojang logo ([#12](https://github.com/cheyao/animated-logo/issues/12))
-- Consequentially support monochrome theme
-- Make loading screen music scale with UI on 26.x, Music on everything else, instead of master ([#13](https://github.com/cheyao/animated-logo/issues/13))
-- Re-haul code, should hopefully run better and facilitate future ports
+- Fix crash on 1.26 & 1.26.1 neoforge

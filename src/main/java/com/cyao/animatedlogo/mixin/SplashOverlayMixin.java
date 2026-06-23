@@ -108,9 +108,9 @@ public class SplashOverlayMixin {
 	//? neoforge
 	//private ProgressMeter progressMeter;
 	//? < 26.1
-	@Final @Shadow private Consumer<Optional<Throwable>> onFinish;
+	//@Final @Shadow private Consumer<Optional<Throwable>> onFinish;
 	//? < 26.1
-	@Shadow private long fadeOutStart;
+	//@Shadow private long fadeOutStart;
 	@Final
 	@Shadow
 	private DisplayWindow displayWindow;
@@ -273,8 +273,10 @@ public class SplashOverlayMixin {
 
 		int alpha = Mth.ceil(logoAlpha * 255.0F);
 		//? >= 1.21.5
-		//graphics.nextStratum();
-		//? >= 1.21.5
+		graphics.nextStratum();
+        //? >= 26.1
+		graphics.fill(0, 0, width, height, animated_logo$replaceAlpha(BRAND_BACKGROUND.getAsInt(), alpha));
+		//? >= 1.21.5 && < 26.1
 		//graphics.fill(RenderPipelines.MOJANG_LOGO, 0, 0, width, height, animated_logo$replaceAlpha(BRAND_BACKGROUND.getAsInt(), alpha));
 		//? 1.20.1 || 1.21 || 1.21.2
 		//graphics.fill(RenderType.guiOverlay(), 0, 0, width, height, animated_logo$replaceAlpha(BRAND_BACKGROUND.getAsInt(), alpha));
