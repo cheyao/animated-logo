@@ -28,13 +28,15 @@ import net.minecraft.sounds.SoundSource;
 import java.io.BufferedInputStream;
 import java.io.InputStream;
 
-//? neoforge {
+//? neoforge && <=26.1.1 {
 /*import net.neoforged.neoforge.client.loading.NeoForgeLoadingOverlay;
+
 import net.neoforged.fml.earlydisplay.DisplayWindow;
 import net.neoforged.fml.loading.progress.ProgressMeter;
-
-import com.llamalad7.mixinextras.sugar.Local;
 *///? }
+
+//? neoforge
+//import com.llamalad7.mixinextras.sugar.Local;
 
 //? forge && >=1.20.1 {
 /*import net.minecraftforge.client.loading.ForgeLoadingOverlay;
@@ -73,9 +75,9 @@ import net.minecraft.Util;
 import static net.minecraft.client.gui.GuiComponent.blit;
 *///? }
 
-//? fabric
+//? fabric || >=26.1.2
 @Mixin(LoadingOverlay.class)
-//? neoforge
+//? neoforge && <=26.1.1
 //@Mixin(NeoForgeLoadingOverlay.class)
 //? forge && >=1.20.1
 //@Mixin(ForgeLoadingOverlay.class)
@@ -91,7 +93,7 @@ public class SplashOverlayMixin {
     private float currentProgress;
 	//? }
 
-	//? fabric || (forge && <=1.20) {
+	//? fabric || (forge && <=1.20) || (neoforge && >=26.1.2){
 	@Shadow
 	private long fadeInStart;
 	@Shadow
@@ -100,13 +102,13 @@ public class SplashOverlayMixin {
 	private boolean fadeIn;
 	//? }
 
-	//? neoforge || (forge && >=1.20.1) {
+	//? (neoforge && <=26.1.1) || (forge && >=1.20.1) {
 	/*@Final
 	@Shadow
 	//? forge
 	//private ProgressMeter progress;
 	//? neoforge
-	//private ProgressMeter progressMeter;
+	private ProgressMeter progressMeter;
 	//? < 26.1
 	//@Final @Shadow private Consumer<Optional<Throwable>> onFinish;
 	//? < 26.1
@@ -163,7 +165,7 @@ public class SplashOverlayMixin {
     }
 	//? }
 
-	//? fabric || (forge && <=1.20) {
+	//? fabric || (neoforge && >=26.1.2) || (forge && <=1.20) {
     @ModifyArg(
 			//? >= 26.1
 			method = "extractRenderState(Lnet/minecraft/client/gui/GuiGraphicsExtractor;IIF)V",
@@ -219,7 +221,7 @@ public class SplashOverlayMixin {
 			//at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/screens/LoadingOverlay;blit(Lcom/mojang/blaze3d/vertex/PoseStack;IIIIFFIIII)V")
     )
 	//? >=26.1
-	private void onAfterRenderLogo(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float a, CallbackInfo ci/*? neoforge { *//*, @Local(name = "fade") float logoAlpha*//*? } */)
+	private void onAfterRenderLogo(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float a, CallbackInfo ci/*? neoforge && <=26.1.1 { *//*, @Local(name = "fade") float logoAlpha*//*? } */)
 	//? >=1.20 && <26.1
     //private void onAfterRenderLogo(GuiGraphics graphics, int mouseX, int mouseY, float a, CallbackInfo ci/*? neoforge { *//*, @Local(name = "fade") float logoAlpha*//*? } */)
 	//? <1.20
@@ -240,7 +242,7 @@ public class SplashOverlayMixin {
 		double logoWidth = logoHeight * (double)4.0F;
 		int logoWidthHalf = (int)(logoWidth * (double)0.5F);
 
-		//? fabric || (forge && <=1.20) {
+		//? fabric || (forge && <=1.20) || (neoforge && >=26.1.2) {
 		long now = Util.getMillis();
 		if (this.fadeIn && this.fadeInStart == -1L) {
 			this.fadeInStart = now;
@@ -266,7 +268,7 @@ public class SplashOverlayMixin {
 		float logoAlpha = 1.0F - Mth.clamp(fot - 1.0F, 0.0F, 1.0F);
 		*///? }
 
-		//? neoforge || (forge && >=1.20.1) {
+		//? (neoforge && <=26.1.1) || (forge && >=1.20.1) {
 		/*int LOGO_BACKGROUND_COLOR = ARGB.color(255, 239, 50, 61);
 		int LOGO_BACKGROUND_COLOR_DARK = ARGB.color(255, 0, 0, 0);
 		IntSupplier BRAND_BACKGROUND = () -> (Boolean)Minecraft.getInstance().options.darkMojangStudiosBackground().get() ? LOGO_BACKGROUND_COLOR_DARK : LOGO_BACKGROUND_COLOR;
@@ -480,3 +482,5 @@ public class SplashOverlayMixin {
 		*///? }
     }
 }
+
+

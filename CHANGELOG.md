@@ -1,1 +1,3 @@
-- Fix crash on 1.26 & 1.26.1 neoforge
+- Fix crash on 26 & 26.1.1 neoforge
+- Fixed animation not playing on 26.1.2
+- Added support for 26.2
